@@ -1,0 +1,96 @@
+[commands.golangci-lint]
+type = "lint"
+include = "**/*.go"
+invoke = "once"
+path_args = "dir"
+cmd = [
+    "golangci-lint",
+    "run",
+    "--config", "$PRECIOUS_ROOT/golangci-lint.yml",
+    "--build-tags", "demo",
+    "--allow-parallel-runners",
+]
+env = { "FAIL_ON_WARNINGS" = "1" }
+ok_exit_codes = [0]
+lint_failure_exit_codes = [1]
+
+[commands."lint go file line wrapping"]
+type = "lint"
+include = "**/*.go"
+invoke = "once"
+path_args = "file"
+cmd = "dev/bin/golines-lint.sh"
+ok_exit_codes = [0]
+
+[commands."tidy go files"]
+type = "tidy"
+include = "**/*.go"
+cmd = [
+    "golangci-lint",
+    "run",
+    "--fix",
+    "--disable-all",
+    "--enable", "gci",
+    "--enable", "gofumpt",
+    "--allow-parallel-runners",
+]
+ok_exit_codes = [0]
+
+[commands."line wrap go files"]
+type = "tidy"
+include = "**/*.go"
+cmd = [
+    "golines",
+    "--write-output",
+]
+ok_exit_codes = [0]
+
+[commands.check-go-mod]
+type = "lint"
+include = "**/*.go"
+invoke = "once"
+path_args = "none"
+cmd = ["$PRECIOUS_ROOT/dev/bin/check-go-mod.sh"]
+ok_exit_codes = [0]
+lint_failure_exit_codes = [1]
+
+[commands.omegasort-gitignore]
+type = "both"
+include = "**/.gitignore"
+cmd = [ "omegasort", "--sort", "path", "--unique" ]
+lint_flags = "--check"
+tidy_flags = "--in-place"
+ok_exit_codes = 0
+lint_failure_exit_codes = 1
+ignore_stderr = [
+    "The .+ file is not sorted",
+    "The .+ file is not unique",
+]
+
+[commands.prettier-markdown]
+type    = "both"
+include = "**/*.md"
+cmd     = [
+    "./node_modules/.bin/prettier",
+    "--no-config",
+    "--print-width", "100",
+    "--prose-wrap", "always",
+]
+lint_flags = "--check"
+tidy_flags = "--write"
+ok_exit_codes = 0
+lint_failure_exit_codes = 1
+ignore_stderr = [ "Code style issues" ]
+
+[commands.prettier-yaml]
+type    = "both"
+include = "**/*.yml"
+cmd     = [
+    "./node_modules/.bin/prettier",
+    "--no-config",
+]
+lint_flags = "--check"
+tidy_flags = "--write"
+ok_exit_codes = 0
+lint_failure_exit_codes = 1
+ignore_stderr = [ "Code style issues" ]
